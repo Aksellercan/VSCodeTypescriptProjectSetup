@@ -27,10 +27,6 @@ namespace GraphicalWPF
 
         private string createFolders()
         {
-            if ((String.IsNullOrWhiteSpace(filePath) && String.IsNullOrWhiteSpace(projectName)))
-            {
-                throw new Exception("File Path and Project Name not set!");
-            }
             if (System.IO.Directory.Exists(Path.Combine(filePath, projectName)))
             {
                 throw new Exception("Project already exists!");

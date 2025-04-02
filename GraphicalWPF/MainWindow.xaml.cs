@@ -31,10 +31,9 @@ namespace GraphicalWPF
             {
                 return;
             }
-            else if (projectName.StartsWith(" ")) projectName = projectName.TrimStart();
+            else if (projectName.Contains(" ")) projectName = projectName.Replace(" ", "");
 
             string selected = btnComboBox.SelectedItem.ToString();
-            Console.WriteLine(selected);
             if (selected == "Rust")
             {
                 rustProject.setProjectName(projectName);
@@ -47,6 +46,7 @@ namespace GraphicalWPF
                 tsProject.setFilePath(filePath);
                 tsProject.createProject();
             }
+            lblNotifyCreation.Content = $"Project {projectName} created";
         }
 
         private bool checkEmpty()
