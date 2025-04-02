@@ -46,7 +46,6 @@ namespace GraphicalWPF
                 tsProject.setFilePath(filePath);
                 tsProject.createProject();
             }
-            lblNotifyCreation.Content = $"Project {projectName} created";
         }
 
         private bool checkEmpty()

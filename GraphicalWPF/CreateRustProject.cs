@@ -30,7 +30,7 @@ namespace GraphicalWPF
         {
             if (System.IO.Directory.Exists(Path.Combine(filePath, projectName)))
             {
-                throw new Exception("Project already exists!");
+                throw new Exception($"Project {projectName} already exists!");
             }
             string fullDir = Path.Combine(filePath, projectName);
             return fullDir;
@@ -65,6 +65,7 @@ namespace GraphicalWPF
                 string notifyCompletion = "echo Project created successfully!";
                 string command = $"/c cd \"{filePath}\" && dir && {cargoNew} && cd \"{fullDir}\" && {compileRs} && dir && {notifyCompletion} {vsCode}";
                 Process.Start("CMD.exe", command);
+                _mainWindow.lblNotifyCreation.Content = $"Project {projectName} created";
             }
             catch (Exception e)
             {
