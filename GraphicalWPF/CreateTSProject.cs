@@ -9,10 +9,10 @@ namespace GraphicalWPF
     {
         private string filePath = null;
         private string projectName = null;
-        private string vsCode = "";
         MainWindow _mainWindow;
 
-        public CreateTSProject(MainWindow _mainWindow) {
+        public CreateTSProject(MainWindow _mainWindow)
+        {
             this._mainWindow = _mainWindow;
         }
 
@@ -28,8 +28,12 @@ namespace GraphicalWPF
         private string createFolders()
         {
             if ((String.IsNullOrWhiteSpace(filePath) && String.IsNullOrWhiteSpace(projectName)))
-            {              
+            {
                 throw new Exception("File Path and Project Name not set!");
+            }
+            if (System.IO.Directory.Exists(Path.Combine(filePath, projectName)))
+            {
+                throw new Exception("Project already exists!");
             }
             System.IO.Directory.CreateDirectory(Path.Combine(filePath, projectName));
             System.IO.Directory.CreateDirectory(Path.Combine(filePath, projectName, "src"));
@@ -42,19 +46,20 @@ namespace GraphicalWPF
         {
             try
             {
-                if (!OpenVscode()) return;
+                string vsCode = OpenVscode();
                 string fullDir = createFolders();
 
                 string npmInit = "npm init -y";
                 string tscInit = "tsc --init --sourceMap --rootDir src --outDir dist";
                 string srcindexDir = Path.Combine(fullDir, "src", "index.ts");
-                string precode = $"echo console.log(^\"Hello, World!^\"); > \"{srcindexDir}\"";
 
-                CopyFiles(fullDir);
+                CreateFiles(fullDir);
 
                 string watchtsc = "npm i --save-dev typescript";
-                string notifyCompletion = "echo Project created successfully! You can close this window if it hangs.";
-                string command = $"/c cd {fullDir} && dir && {precode} && {npmInit} && {tscInit} && tsc && {watchtsc} && dir && {notifyCompletion}{vsCode}";
+                string notifyCompletion = "echo Project created successfully!";
+
+                string command = $"/c cd {fullDir} && dir && {npmInit} && {tscInit} && tsc && {watchtsc} && dir && {notifyCompletion} {vsCode}";
+
                 Process.Start("CMD.exe", command);
             }
             catch (Exception e)
@@ -64,7 +69,7 @@ namespace GraphicalWPF
             }
         }
 
-        private bool OpenVscode()
+        private string OpenVscode()
         {
             string messageBoxText = "Open project in VSCode?";
             string caption = "Open VSCode";
@@ -72,32 +77,76 @@ namespace GraphicalWPF
             MessageBoxImage icon = MessageBoxImage.Question;
             MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
 
-            if (result == MessageBoxResult.No || result == MessageBoxResult.Cancel)
+            if (result == MessageBoxResult.Cancel)
             {
-                return false;
+                throw new Exception("");
             }
-            vsCode = " && code .";
-            return true;
+            else if (result == MessageBoxResult.No)
+            {
+                return "";
+            }
+            return "&& code .";
         }
-        private void CopyFiles(string fullDir)
+
+        private void CreateFiles(string fullDir)
         {
-            string dataFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            string launchconfig = Path.Combine(dataFolderPath, "launch.json");
-            if (!File.Exists(launchconfig))
+            string precode = "console.log(\"Hello, World!\");";
+            if (System.IO.Directory.Exists(Path.Combine(fullDir, ".vscode")))
             {
-                _mainWindow.lblNotifyCreation.Content = "launch.json file not found!";
-                throw new Exception("launch.json file not found!");
+                System.IO.File.WriteAllText(Path.Combine(fullDir, ".vscode", "launch.json"), Configs("launch.json"));
+                System.IO.File.WriteAllText(Path.Combine(fullDir, ".vscode", "tasks.json"), Configs("tasks.json"));
             }
-            string tasksconfig = Path.Combine(dataFolderPath, "tasks.json");
-            if (!File.Exists(tasksconfig))
+            else
             {
-                _mainWindow.lblNotifyCreation.Content = "tasks.json file not found!";
-                throw new Exception("tasks.json file not found!");
+                throw new Exception("Directory .vscode not found!");
             }
-            string copyTasks = Path.Combine(fullDir, ".vscode", "tasks.json");
-            string copyLaunch = Path.Combine(fullDir, ".vscode", "launch.json");
-            File.Copy(tasksconfig, copyTasks);
-            File.Copy(launchconfig, copyLaunch);
+
+            if (System.IO.Directory.Exists(Path.Combine(fullDir, "src")))
+            {
+                System.IO.File.WriteAllText(Path.Combine(fullDir, "src", "index.ts"), precode);
+            }
+            else
+            {
+                throw new Exception("Directory src not found!");
+            }
+        }
+
+        private string Configs(string file)
+        {
+            string configFile = null;
+            if (file == "launch.json")
+                configFile = "{\r\n  // Use IntelliSense to learn about possible attributes.\r\n " +
+                " // Hover to view descriptions of existing attributes.\r\n " +
+                " // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387\r\n " +
+                " \"version\": \"0.2.0\",\r\n " +
+                " \"configurations\": [\r\n\r\n    {\r\n     " +
+                " \"type\": \"node\",\r\n   " +
+                "   \"request\": \"launch\",\r\n   " +
+                "   \"name\": \"Launch Program\",\r\n     " +
+                " \"skipFiles\": [\r\n     " +
+                "   \"<node_internals>/**\"\r\n      ],\r\n   " +
+                "   \"program\": \"${workspaceFolder}\\\\dist\\\\index.js\",\r\n " +
+                "     \"outFiles\": [\r\n    " +
+                "    \"${workspaceFolder}/**/*.js\"\r\n  " +
+                "    ]\r\n  " +
+                "  }\r\n " +
+                " ]\r\n}";
+            else if (file == "tasks.json")
+                configFile = "{\r\n  \"version\": \"2.0.0\",\r\n  " +
+                "\"tasks\": [\r\n    {\r\n     " +
+                " \"type\": \"typescript\",\r\n    " +
+                "  \"tsconfig\": \"tsconfig.json\",\r\n    " +
+                "  \"option\": \"watch\",\r\n " +
+                "     \"problemMatcher\": [\r\n    " +
+                "    \"$tsc-watch\"\r\n      ],\r\n  " +
+                "    \"group\": {\r\n     " +
+                "   \"kind\": \"build\",\r\n    " +
+                "    \"isDefault\": true\r\n    " +
+                "  },\r\n  " +
+                "    \"label\": \"tsc: watch - tsconfig.json\"\r\n   " +
+                " }\r\n  " +
+                "]\r\n}";
+            return configFile;
         }
     }
 }

@@ -16,8 +16,8 @@
         <Button Content="Create Project" HorizontalAlignment="Left" Margin="277,14,0,0" VerticalAlignment="Top" Height="22" Width="100" Grid.Column="1" Click="btnCreate_Click"/>
         <Button Content="Directory" HorizontalAlignment="Left" Margin="382,14,0,0" VerticalAlignment="Top" Height="22" Width="70" Grid.Column="1" Click="btnBrowser_Click"/>
         <Label x:Name="lblDirectory" Content="Directory: " HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Width="564" Grid.ColumnSpan="2" MouseLeftButtonDown="lblDirectory_Click" Cursor="Hand"/>
-        <Label x:Name="lblStructure" Content="" HorizontalAlignment="Left" Margin="10,62,0,0" VerticalAlignment="Top" Height="224" Width="209" Grid.ColumnSpan="2"/>
-        <Label x:Name="lblNotifyCreation" Grid.Column="1" Content="" HorizontalAlignment="Left" Margin="113,67,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.189,0.406" Width="350" Height="219"/>
+        <Label x:Name="lblNotifyCreation" Content="" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.189,0.406" Width="373" Height="139" Grid.ColumnSpan="2"/>
+        <ComboBox x:Name="btnComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="332,233,0,0" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>

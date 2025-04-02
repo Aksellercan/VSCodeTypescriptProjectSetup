@@ -12,24 +12,41 @@ namespace GraphicalWPF
     {
         string filePath = null;
         string projectName = null;
-        private CreateTSProject project;
+        private CreateTSProject tsProject;
+        private CreateRustProject rustProject;
 
         public MainWindow()
         {
             InitializeComponent();
-            project = new CreateTSProject(this);
+            rustProject = new CreateRustProject(this);
+            tsProject = new CreateTSProject(this);
+            btnComboBox.Items.Add("TypeScript");
+            btnComboBox.Items.Add("Rust");
+            btnComboBox.SelectedIndex = 0;
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
         {
             if (checkEmpty())
-            {      
+            {
                 return;
             }
             else if (projectName.StartsWith(" ")) projectName = projectName.TrimStart();
-            project.setProjectName(projectName);
-            project.setFilePath(filePath);
-            project.createProject();            
+
+            string selected = btnComboBox.SelectedItem.ToString();
+            Console.WriteLine(selected);
+            if (selected == "Rust")
+            {
+                rustProject.setProjectName(projectName);
+                rustProject.setFilePath(filePath);
+                rustProject.createProject();
+            }
+            else
+            {
+                tsProject.setProjectName(projectName);
+                tsProject.setFilePath(filePath);
+                tsProject.createProject();
+            }
         }
 
         private bool checkEmpty()
@@ -52,7 +69,10 @@ namespace GraphicalWPF
             System.Windows.Forms.FolderBrowserDialog folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             folderBrowser.ShowDialog();
             filePath = folderBrowser.SelectedPath;
-            lblDirectory.Content = "Workspace folder: " + filePath;
+            if (!String.IsNullOrWhiteSpace(filePath))
+            {
+                lblDirectory.Content = "Workspace folder: " + filePath;
+            }
             Console.WriteLine(filePath);
         }
 
@@ -70,8 +90,6 @@ namespace GraphicalWPF
         {
             TextBox textBox = (TextBox)sender;
             projectName = textBox.Text;
-            lblStructure.Content = $"Structure:\n{textBox.Text}\n .vscode\n   launch.json\n   " +
-                $"tasks.json\n dist\n node_modules\n src\n   index.ts\n package.json\n package-lock.json\n tsconfig.json";
-        }
+        }    
     }
 }
