@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GraphicalWPF"
         mc:Ignorable="d"
-        Title="Create_Project" Height="312" Width="584" ResizeMode="NoResize" Icon="/typescript_brands_icon_256628.ico" Padding="10,10,10,10">
+        Title="Create_Project" Height="312" Width="584" ResizeMode="NoResize" Icon="/typescript_brands_icon_256628.ico" Padding="10,10,10,10" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
