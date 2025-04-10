@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace GraphicalWPF
 {
@@ -14,6 +15,7 @@ namespace GraphicalWPF
         string projectName = null;
         private CreateTSProject tsProject;
         private CreateRustProject rustProject;
+        private SaveFile saveFile;
 
         public MainWindow()
         {
@@ -23,6 +25,20 @@ namespace GraphicalWPF
             btnComboBox.Items.Add("TypeScript");
             btnComboBox.Items.Add("Rust");
             btnComboBox.SelectedIndex = 0;
+            lblDirectory.Visibility = Visibility.Hidden;
+            saveFile = new SaveFile(filePath);
+            if (saveFile.CheckExists()) {
+                lblDirectory.Visibility = Visibility.Visible;
+                saveFile.getFilePath(); 
+                filePath = saveFile.getFilePath();
+                lblDirectory.Content = "Workspace folder: " + filePath;
+            }
+        }
+
+        private void ConfigPath() 
+        {
+            saveFile.setFilePath(filePath);
+            saveFile.CreateConfig();
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
@@ -39,12 +55,14 @@ namespace GraphicalWPF
                 rustProject.setProjectName(projectName);
                 rustProject.setFilePath(filePath);
                 rustProject.createProject();
+                ConfigPath();
             }
             else
             {
                 tsProject.setProjectName(projectName);
                 tsProject.setFilePath(filePath);
                 tsProject.createProject();
+                ConfigPath();
             }
         }
 
@@ -52,7 +70,8 @@ namespace GraphicalWPF
         {
             if (String.IsNullOrWhiteSpace(filePath))
             {
-                lblNotifyCreation.Content = "Path is empty";
+                lblDirectory.Visibility = Visibility.Visible;
+                lblDirectory.Content = "Path is empty";
                 return true;
             }
             else if (String.IsNullOrWhiteSpace(projectName))
@@ -70,6 +89,7 @@ namespace GraphicalWPF
             filePath = folderBrowser.SelectedPath;
             if (!String.IsNullOrWhiteSpace(filePath))
             {
+                lblDirectory.Visibility = Visibility.Visible;
                 lblDirectory.Content = "Workspace folder: " + filePath;
             }
             Console.WriteLine(filePath);
@@ -77,18 +97,26 @@ namespace GraphicalWPF
 
         private void lblDirectory_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(filePath))
+            try
             {
-                Process.Start(filePath);
+                if (String.IsNullOrWhiteSpace(filePath))
+                {
+                    throw new Exception("Invalid path, FilePath: " + filePath);
+                }
+                Process.Start($@"{filePath}");
                 return;
             }
-            Console.WriteLine("Label clicked but path is empty");
+            catch (Exception ex)
+            {
+                lblNotifyCreation.Content = ex.Message;
+                Console.WriteLine(ex);
+            }
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox textBox = (TextBox)sender;
             projectName = textBox.Text;
-        }    
+        }
     }
 }
