@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Navigation;
 
 namespace GraphicalWPF
 {
@@ -12,10 +13,12 @@ namespace GraphicalWPF
     public partial class MainWindow : Window
     {
         string filePath = null;
+        string type = null;
         string projectName = null;
         private CreateTSProject tsProject;
         private CreateRustProject rustProject;
         private SaveFile saveFile;
+        private bool existsorNot;
 
         public MainWindow()
         {
@@ -24,20 +27,40 @@ namespace GraphicalWPF
             tsProject = new CreateTSProject(this);
             btnComboBox.Items.Add("TypeScript");
             btnComboBox.Items.Add("Rust");
-            btnComboBox.SelectedIndex = 0;
-            lblDirectory.Visibility = Visibility.Hidden;
-            saveFile = new SaveFile(filePath);
-            if (saveFile.CheckExists()) {
+            saveFile = new SaveFile(filePath,type);
+
+            existsorNot = saveFile.CheckExists();
+            if (existsorNot)
+            {
+                saveFile.ReadConfig();
                 lblDirectory.Visibility = Visibility.Visible;
-                saveFile.getFilePath(); 
-                filePath = saveFile.getFilePath();
+                filePath = saveFile.getObjectProp("TypeScript");
+                btnComboBox.SelectedIndex = 0;
                 lblDirectory.Content = "Workspace folder: " + filePath;
+            } else {
+                btnComboBox.SelectedIndex = 0;
+                lblDirectory.Visibility = Visibility.Hidden;
             }
+        }
+
+        private void comboboxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (existsorNot)
+            {
+                string selected = btnComboBox.SelectedItem.ToString();
+                Console.WriteLine(selected);
+                string path = saveFile.getObjectProp(selected);
+                lblDirectory.Content = "Workspace folder: " + path;
+                filePath = path;
+            }
+            return;
         }
 
         private void ConfigPath() 
         {
+            string selected = btnComboBox.SelectedItem.ToString();
             saveFile.setFilePath(filePath);
+            saveFile.setType(selected);
             saveFile.CreateConfig();
         }
 
